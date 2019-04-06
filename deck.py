@@ -199,38 +199,6 @@ class HandEvaluator(object):
         return has_straight
 
 
-    def eval_straight_like(self):
-        '''  Test if there is a straight in the hand
-
-        deprecated - algo for 'straight-like' is too annoying
-        
-        it might be better to do combinatorial evaluations to cover the whole space
-        because clever algorithms are more dangerous
-        '''
-        STRAIGHT = 5
-        result = False
-        for card in self.cards:
-            # test for ace
-            has_ace = []
-            if 'A' in [card.rank for card in self.cards]:
-                has_ace = ['A']
-        self.cards_ranks = list(set(sorted([RANK_ORDER[card.rank] for card in self.cards])))
-        rank_tests = 1 + len(self.cards_ranks) - STRAIGHT # number of windows to test e.g. 1+7-5 = 3 windows
-        logging.debug('number of ranks windows: {}'.format(rank_tests))
-        logging.debug('repr of all cards: {}'.format(str(self)))
-        i = 0
-        while i < rank_tests:
-            # still need to test if there is an Ace, if [2,3,4,5] is present...
-            r = i
-            if range(self.cards_ranks[r], self.cards_ranks[r]+STRAIGHT) == self.cards_ranks[r:r+STRAIGHT]:
-                result = (True, RANKS[self.cards_ranks[r+STRAIGHT-1]]) # remember that range is non-inclusive
-            i += 1
-        if result:
-            return result
-        else:
-            return (False, None)
-
-
     def __str__(self):
         return " ".join([str(card) for card in self.cards])
 
@@ -296,9 +264,6 @@ if __name__ == '__main__':
     '''
     shuffled_deck = Deck(SUITS, RANKS)
     unshuffled_deck = Deck(SUITS, RANKS, shuffled=False)
-
-    print("Unshuffled", ["{}{}".format(card.suit, card.rank) for card in unshuffled_deck.deck])
-    print("Shuffled", ["{}{}".format(card.suit, card.rank) for card in shuffled_deck.deck])
 
     hand = TexasHoldemHand(
             shuffled_deck.deal(), 
