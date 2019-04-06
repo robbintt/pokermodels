@@ -111,6 +111,12 @@ class TexasHoldemHand(object):
         else: 
             return 'o'
 
+    @property
+    def cards(self):
+        ''' return a list of cards for evaluation... don't destroy the cards!
+        '''
+        return [self.card1, self.card2]
+
     def __str__(self):
         return("{}{}-{}{} : {}{}{}".format(
             self.card1.rank, self.card1.suit, 
@@ -134,7 +140,20 @@ class TexasHoldemCommunityCards(object):
         else: 
             return False
 
+    @property
+    def cards(self):
+        ''' return a list of cards for evaluation... don't destroy the cards!
+        '''
+        return [self.card1, self.card2, self.card3, self.card4, self.card5]
 
+    def __str__(self):
+        card_string_template = "{}{} " * 5
+        return(card_string_template.format(
+            self.card1.rank, self.card1.suit, 
+            self.card2.rank, self.card2.suit,
+            self.card3.rank, self.card3.suit,
+            self.card4.rank, self.card4.suit,
+            self.card5.rank, self.card5.suit))
 
 class HandEvaluator(object):
     ''' Build and evaluate a hand, and score it
@@ -153,16 +172,37 @@ class HandEvaluator(object):
         self.community_cards = community_cards
         self.all_cards = self.hand + self.community_cards
 
+    STRAIGHT_ORDER = ('A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A')
+
+    def eval_flush(self):
+        for card in self.all_cards:
+            pass
+
+    def order_cards(self):
+        sorted(self.all_cards, key=lambda card: card.rank) 
+
 
 if __name__ == '__main__':
     '''
     '''
     shuffled_deck = Deck(SUITS, RANKS)
     unshuffled_deck = Deck(SUITS, RANKS, shuffled=False)
+
     print("Unshuffled", ["{}{}".format(card.suit, card.rank) for card in unshuffled_deck.deck])
     print("Shuffled", ["{}{}".format(card.suit, card.rank) for card in shuffled_deck.deck])
-    hand = TexasHoldemHand(shuffled_deck.deal(), shuffled_deck.deal())
+
+    hand = TexasHoldemHand(
+            shuffled_deck.deal(), 
+            shuffled_deck.deal())
+    community_cards = TexasHoldemCommunityCards(
+            shuffled_deck.deal(), 
+            shuffled_deck.deal(), 
+            shuffled_deck.deal(), 
+            shuffled_deck.deal(), 
+            shuffled_deck.deal())
+
     print("Hand: {}".format(hand))
+    print("Community cards: {}".format(community_cards))
 
     unittest.main()
     
