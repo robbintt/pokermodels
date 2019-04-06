@@ -4,9 +4,9 @@ from __future__ import absolute_import, division, print_function
 import unittest
 import logging
 
-from lib.const_poker import SUITS, RANKS, WINNING_HANDS, RANK_ORDER, WINNING_HAND_ORDER, SUIT_NAMES, RANK_NAMES
+from lib.const_poker import *
 from lib.deck import Deck, Card
-from lib.texas_holdem import CommunityCards, Hand, HandEvaluator
+from lib.texas_holdem import CommunityCards, Hand, HandEvaluator, Game, Player
 
 
 class StandardDeckPropertiesTest(unittest.TestCase):
@@ -61,3 +61,28 @@ class HandEvaluatorTest(unittest.TestCase):
         ''' test report rank of a six or seven card straight correctly
         '''
         self.assertEqual(self.straight_hand_eval.eval_straight(), (True, 'A'))
+
+
+class PokerGameTest(unittest.TestCase):
+
+    def setUp(self):
+        ''' set up a variety of hands and community cards manually for testing
+        '''
+        deck = Deck(SUITS, RANKS, shuffled=True)
+
+        players = list()
+        player_number = 2
+        for i in range(player_number):
+            players.append(Player(name=str(i), chips=1500))
+
+        self.game = Game(deck, players)
+
+    def test_assign_dealer(self):
+        self.assertIsNone(self.game.dealer, None)
+        self.game.select_dealer()
+        self.assertIsInstance(self.game.dealer, Player)
+
+    '''
+    def count_deal(self):
+        game.deal
+    '''

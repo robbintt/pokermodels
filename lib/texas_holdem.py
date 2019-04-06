@@ -1,5 +1,8 @@
 '''
 '''
+import random
+import logging
+
 from lib.poker_const import *
 
 class Hand(object):
@@ -65,6 +68,38 @@ class CommunityCards(object):
             self.card3.rank, self.card3.suit,
             self.card4.rank, self.card4.suit,
             self.card5.rank, self.card5.suit))
+
+class Player(object):
+    ''' Stub for naming players, for now
+    '''
+    def __init__(self, name=None, chips=0, dealer=False):
+        self.name = name
+        self.chips = chips
+        self.dealer = dealer
+
+    def __str__(self):
+        return "Player {}: {} chips.".format(self.name, self.chips, self.dealer)
+
+
+class Game(object):
+    ''' Play a game of poker with no bets
+
+    This can be used to calculate preflop odds on n-way-hands
+
+    deck is a Deck() object, typically Deck(SUITS, RANKS, shuffled=True)
+    players is a list of player objects
+    '''
+    def __init__(self, deck, players):
+        self.deck = deck
+        self.players = players
+        self.dealer = None
+
+    def select_dealer(self):
+        random.shuffle(self.players)
+        self.dealer = self.players[0]
+        logging.debug("Player {} is dealer.".format(str(self.dealer.name)))
+
+
 
 class HandEvaluator(object):
     ''' Build and evaluate a hand, and score it
