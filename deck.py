@@ -7,6 +7,25 @@ import random
 SUITS = ('S', 'C', 'H', 'D')
 RANKS = ('2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A')
 
+WINNING_HANDS = (
+    'high_card',
+    'pair',
+    '2_pair',
+    '3_kind',
+    'straight',
+    'flush',
+    'full_house',
+    '4_kind',
+    'straight_flush',
+    'royal_flush'
+)
+
+
+RANK_ORDER = {rank: score for score, rank in enumerate(RANKS)}
+WINNING_HAND_ORDER = {hand: score for score, hand in enumerate(WINNING_HANDS)}
+STRAIGHT_ORDER = ('A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A')
+
+
 SUIT_NAMES = {
     'S': 'spades',
     'C': 'clubs',
@@ -30,19 +49,6 @@ RANK_NAMES = {
     'A' : 'ace'
 }
 
-HAND_RANKS = (
-    'high_card',
-    'pair',
-    '2_pair',
-    '3_kind',
-    'straight',
-    'flush',
-    'full_house',
-    '4_kind',
-    'straight_flush',
-    'royal_flush'
-)
-
 class Card(object):
     '''
     '''
@@ -50,6 +56,8 @@ class Card(object):
         self.suit = suit
         self.rank = rank
     
+    def __str__(self):
+        return("{}{}".format(self.rank, self.suit))
 
 class Deck(object):
     ''' Deck for dealing cards
@@ -170,17 +178,18 @@ class HandEvaluator(object):
     def __init__(self, hand, community_cards):
         self.hand = hand
         self.community_cards = community_cards
-        self.all_cards = self.hand + self.community_cards
-
-    STRAIGHT_ORDER = ('A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A')
+        self.cards = self.hand.cards + self.community_cards.cards
 
     def eval_flush(self):
-        for card in self.all_cards:
+        for card in self.cards:
             pass
 
     def order_cards(self):
-        sorted(self.all_cards, key=lambda card: card.rank) 
+        self.cards.sort(key=lambda card: RANK_ORDER[card.rank]) 
 
+
+    def __str__(self):
+        return " ".join([str(card) for card in self.cards])
 
 if __name__ == '__main__':
     '''
@@ -200,9 +209,14 @@ if __name__ == '__main__':
             shuffled_deck.deal(), 
             shuffled_deck.deal(), 
             shuffled_deck.deal())
+    hand_evaluator_object = HandEvaluator(hand, community_cards)
 
     print("Hand: {}".format(hand))
-    print("Community cards: {}".format(community_cards))
+    print("Community Cards: {}".format(community_cards))
+    print("Hand Evaluator Cards: {}".format(hand_evaluator_object))
+
+    hand_evaluator_object.order_cards()
+    print("Hand Evaluator Cards: {}".format(hand_evaluator_object))
 
     unittest.main()
     
