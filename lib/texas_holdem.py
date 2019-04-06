@@ -83,12 +83,21 @@ class HandEvaluator(object):
         self.community_cards = community_cards
         self.cards = self.hand.cards + self.community_cards.cards
 
-    def eval_flush(self):
-        for card in self.cards:
-            pass
-
     def order_cards(self):
         self.cards.sort(key=lambda card: RANK_ORDER[card.rank]) 
+
+    def eval_flush(self):
+        '''
+        '''
+        pass
+
+    def eval_royalflush(self):
+        pass
+
+    def eval_straightflush(self):
+        ''' should royal flush be evaluated here?
+        '''
+        pass
 
     def eval_straight(self):
         ''' Use combinatorics to evaluate if there's a straight
@@ -110,8 +119,56 @@ class HandEvaluator(object):
 
         return has_straight
 
+    def eval_fullhouse(self):
+        ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, 2-kind
+        '''
+        pass
+
+    def eval_4kind(self):
+        ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, 2-kind
+        '''
+        pass
+
+    def eval_3kind(self):
+        ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, pair
+        '''
+        pass
+
+    def eval_2pair(self):
+        ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, pair
+        '''
+        pass
+
+    def eval_pair(self):
+        ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, pair
+        '''
+        pass
+
+    def eval_highcard(self):
+        ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, pair
+        '''
+        pass
+
+    def eval_leftovers(self):
+        ''' based on the number of cards in the hand, fill remaining slots with high card
+
+        generally used to solve ties, relevant for 4p and down
+        '''
 
     def __str__(self):
         return " ".join([str(card) for card in self.cards])
+
+
+def HandCompare(self):
+    ''' Given two equal hands, determine who wins
+
+    We need to differentiate between private cards here which is kind of funky in the context of hand construction
+
+    relevant for: 3-kind, 2-pair, pair, highcard
+    also matters for: straight, 
+    simple for: straightflush (only 2 players will ever have a straightflush, 1 would have highcard, the other lowcard)
+    very simple for flush, since highest card in the flush wins (flush consumes all 5 slots)
+    '''
+
 
 
