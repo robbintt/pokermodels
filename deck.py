@@ -187,6 +187,22 @@ class HandEvaluator(object):
     def order_cards(self):
         self.cards.sort(key=lambda card: RANK_ORDER[card.rank]) 
 
+    def eval_straight(self):
+        # this can probably be done a little more simply
+        STRAIGHT = 5
+        self.order_cards() # must be done first
+        self.cards.ranks = set([card.rank for card in self.cards])
+        rank_tests = self.cards.ranks - STRAIGHT
+        # should have a range 0-2 with 7 cards
+        if rank_tests >= 0:
+            range(self.cards[rank_tests:rank_tests+STRAIGHT])
+            # basically just test if the range == range(5) if you subtract the first value of the range from each value
+            # (8, 9, 10, 11, 12)
+            # for val in set_of_5_cards
+            #       if list(range(5)) == [v - current_five_values[0] for v in current_five_values]
+
+            rank_test -= 1
+
 
     def __str__(self):
         return " ".join([str(card) for card in self.cards])
