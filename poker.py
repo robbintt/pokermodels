@@ -9,7 +9,7 @@ from lib.deck import Deck, Card
 from lib.texas_holdem import CommunityCards, Hand, HandEvaluator
 
 
-logging.basicConfig(filename='debug.log',level=logging.DEBUG)
+logging.basicConfig(filename='logs/debug.log',level=logging.DEBUG)
     
 
 if __name__ == '__main__':
