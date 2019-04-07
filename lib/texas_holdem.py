@@ -158,6 +158,7 @@ class HandConstructor(object):
     ==========================================
         - check just the flush cards for a straight to improve the hand
         - check if any straight flushes are royal flush (technically named differently)
+        - check for straights if there is no flush
 
     If it's '4 of a kind', stop evaluating (nothing else fits)
         - select 1 kicker
