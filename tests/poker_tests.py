@@ -74,13 +74,21 @@ class PokerGameTest(unittest.TestCase):
         player_number = 2
         for i in range(player_number):
             players.append(Player(name=str(i), chips=1500))
+        self.player_1 = players[0]
+        self.player_2 = players[1]
 
         self.game = Game(deck, players)
 
-    def test_assign_dealer(self):
-        self.assertIsNone(self.game.dealer, None)
-        self.game.select_dealer()
-        self.assertIsInstance(self.game.dealer, Player)
+    def test_select_button(self):
+        self.assertIsNone(self.game.button, None)
+        self.game.select_button()
+        #self.assertIsInstance(self.game.button, Player)
+        self.assertEqual(self.game.button, self.player_1)
+
+    def test_update_button(self):
+        self.game.update_button()
+        self.assertEqual(self.game.button, self.player_2)
+
 
     '''
     def count_deal(self):

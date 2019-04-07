@@ -2,6 +2,7 @@
 '''
 import random
 import logging
+import collections
 
 from lib.poker_const import *
 
@@ -72,13 +73,16 @@ class CommunityCards(object):
 class Player(object):
     ''' Stub for naming players, for now
     '''
-    def __init__(self, name=None, chips=0, dealer=False):
+    def __init__(self, name=None, chips=0, cards=None):
         self.name = name
         self.chips = chips
-        self.dealer = dealer
+        if cards:
+            self.cards = cards
+        else:
+            self.cards = list()
 
     def __str__(self):
-        return "Player {}: {} chips.".format(self.name, self.chips, self.dealer)
+        return "Player {}: {} chips.".format(self.name, self.chips)
 
 
 class Game(object):
@@ -87,17 +91,30 @@ class Game(object):
     This can be used to calculate preflop odds on n-way-hands
 
     deck is a Deck() object, typically Deck(SUITS, RANKS, shuffled=True)
-    players is a list of player objects
+    give players as a list of  player objects, which is converted for rotate()
+
+    NOTES:
+    - This module DOES NOT randomize the players list. Do that separately.
     '''
     def __init__(self, deck, players):
         self.deck = deck
-        self.players = players
-        self.dealer = None
+        self.players = collections.deque(players)
+        self.button = None
 
-    def select_dealer(self):
-        random.shuffle(self.players)
-        self.dealer = self.players[0]
-        logging.debug("Player {} is dealer.".format(str(self.dealer.name)))
+    def select_button(self):
+        self.button = self.players[0]
+        logging.debug("Player {} is button.".format(str(self.button.name)))
+
+    def update_button(self):
+        self.players.rotate(-1)  # rotate(-1) will rotate player 1 to last position
+        self.button = self.players[0]
+        logging.debug("Player {} is button.".format(str(self.button.name)))
+
+    def deal_hands(self):
+        for player in players:
+            player.cards.append(self.deck.deal())
+        for player in players:
+            player.cards.append(self.deck.deal())
 
 
 
