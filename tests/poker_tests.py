@@ -174,7 +174,7 @@ class HandConstructorTest(unittest.TestCase):
         '''
         self.flush_hand_eval.tally_ranks()
 
-    def test_eval_3kind(self):
+    def test_eval_kinds(self):
         '''
         '''
         self.flush_hand_eval.eval_kinds()

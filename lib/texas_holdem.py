@@ -272,16 +272,6 @@ class HandConstructor(object):
 
         return has_straight
 
-    def eval_fullhouse(self):
-        ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, 2-kind
-        '''
-        pass
-
-    def eval_4kind(self):
-        ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, 2-kind
-        '''
-        pass
-
     def get_high_card(self, remaining_cards):
         remaining_cards.sort(key=lambda card: RANK_ORDER[card.rank])
         remaining_cards.reverse()
@@ -357,82 +347,6 @@ class HandConstructor(object):
                 else:
                     logging.debug("How did you get here?")
                     return
-
-
-    def eval_3kind(self):
-        ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, pair
-
-        I need to sort by highest rank as well, so i always get FH and 2-pair in proper order
-        e.g. kings over threes
-        e.g. three pair = aa, 88, 22 = aa882, best to grab the highest ranks first
-        or is this just for the special case where there are 2x three of a kind which is a FH?
-        '''
-        self.tally_ranks()
-        rank_tally_list = [(tally, rank) for rank, tally in self.rank_tally.iteritems()]
-        logging.debug(rank_tally_list)
-        # sort by rank and then by instance, so 3 aces will always occur after 3 kings
-        # this will allow a full house to be properly ordered as AAAKK or "aces full of kings"
-        rank_tally_list.sort(key=lambda vals: (vals[0], RANK_ORDER[vals[1]]))
-        logging.debug(rank_tally_list)
-        return
-
-
-        for tally, rank in rank_tally_list:
-
-            # this won't quite work as you can have 2x 3 of a kind and need to make it into a FH
-            
-            if tally == 4:
-
-                self.best_hand.append([card for card in self.cards if card.rank == rank])
-                remaining_cards = [card for card in self.cards if card.rank != rank]
-                high_card, remaining_cards = self.get_high_card(remaining_cards)
-                self.best_hand.append(high_card)
-
-            if tally == 3:
-                if len(self.best_hand) < 3:
-                    # three of a kind
-
-                    # this approach is okay but brittle for more complicated selection
-                    self.best_hand.append([card for card in self.cards if card.rank == rank])
-                    remaining_cards = [card for card in self.cards if card.rank != rank]
-
-                # 2x 3 of a kind... keep the best
-                else:
-                    pass
-
-            # search for a pair in remaining cards
-            # get a high cards from remaining cards...
-            # repeat: get a high cards from remaining cards...
-            if tally == 2 and len(self.best_hand) < 4:
-
-                self.best_hand.append([card for card in self.cards if card.rank == rank])
-                remaining_cards = [card for card in self.cards if card.rank != rank]
-
-        # fill the rest of the hand
-        while len(self.best_hand) < 5:
-            high_card, remaining_cards = self.get_high_card(remaining_cards)
-            self.best_hand.append(high_card)
-
-    def eval_2pair(self):
-        ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, pair
-        '''
-        pass
-
-    def eval_pair(self):
-        ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, pair
-        '''
-        pass
-
-    def eval_highcard(self):
-        ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, pair
-        '''
-        pass
-
-    def eval_leftovers(self):
-        ''' based on the number of cards in the hand, fill remaining slots with high card
-
-        generally used to solve ties, relevant for 4p and down
-        '''
 
     def __str__(self):
         return " ".join([str(card) for card in self.cards])
