@@ -30,6 +30,30 @@ class KindHandConstructorTest(unittest.TestCase):
         self.maxDiff = None
         pass
 
+    def test_kindhand_4kind(self):
+        self.hand = Hand(
+                Card('5', 'S'), 
+                Card('5', 'C'))
+        self.cc = CommunityCards(
+                Card('K', 'S'), 
+                Card('5', 'H'),
+                Card('J', 'D'), 
+                Card('5', 'D'),
+                Card('2', 'S'))
+
+        self.hand_eval = HandConstructor(self.hand, self.cc)
+        self.hand_eval.eval_kinds()
+        the_best_hand = [
+                Card('5', 'H'), 
+                Card('5', 'D'),
+                Card('5', 'S'), 
+                Card('5', 'C'),
+                Card('K', 'S')]
+
+        logging.debug([str(card) for card in self.hand_eval.best_hand])
+        self.assertItemsEqual(self.hand_eval.best_hand, the_best_hand)
+
+
     def test_kindhand_2p(self):
         self.hand = Hand(
                 Card('5', 'S'), 

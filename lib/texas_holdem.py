@@ -307,13 +307,14 @@ class HandConstructor(object):
         for tally, rank in rank_tally_list:
             if tally == 4:
                 for card in self.cards:
-                    if card.rank == rank and len(best_hand) < 5:
+                    if card.rank == rank and len(self.best_hand) < 5:
                         self.best_hand.append(card)
                     else:
                         remaining_cards.append(card)
 
+                logging.debug(remaining_cards)
                 high_card, remaining_cards = self.get_high_card(remaining_cards)
-                self.best_hand.append(high_card)  # result is self.best_hand
+                self.best_hand.append(high_card)  # result is stored in self.best_hand
                 return
 
             if tally == 3:
@@ -384,10 +385,10 @@ class HandConstructor(object):
                 self.best_hand.append([card for card in self.cards if card.rank == rank])
                 remaining_cards = [card for card in self.cards if card.rank != rank]
                 high_card, remaining_cards = self.get_high_card(remaining_cards)
-                best_hand.append(high_card)
+                self.best_hand.append(high_card)
 
             if tally == 3:
-                if len(best_hand) < 3:
+                if len(self.best_hand) < 3:
                     # three of a kind
 
                     # this approach is okay but brittle for more complicated selection
@@ -401,21 +402,15 @@ class HandConstructor(object):
             # search for a pair in remaining cards
             # get a high cards from remaining cards...
             # repeat: get a high cards from remaining cards...
-            if tally == 2 and len(best_hand) < 4:
+            if tally == 2 and len(self.best_hand) < 4:
 
                 self.best_hand.append([card for card in self.cards if card.rank == rank])
                 remaining_cards = [card for card in self.cards if card.rank != rank]
 
         # fill the rest of the hand
-        while len(best_hand) < 5:
+        while len(self.best_hand) < 5:
             high_card, remaining_cards = self.get_high_card(remaining_cards)
-            best_hand.append(high_card)
-
-    def get_high_card(self, remaining_cards):
-        '''
-        '''
-        pass
-        # return high_card, remaining_cards
+            self.best_hand.append(high_card)
 
     def eval_2pair(self):
         ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, pair
