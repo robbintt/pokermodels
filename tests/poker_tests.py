@@ -6,7 +6,7 @@ import logging
 
 from lib.poker_const import *
 from lib.deck import Deck, Card
-from lib.texas_holdem import CommunityCards, Hand, HandEvaluator, Game, Player
+from lib.texas_holdem import CommunityCards, Hand, HandConstructor, Game, Player
 
 
 class StandardDeckPropertiesTest(unittest.TestCase):
@@ -24,7 +24,7 @@ class StandardDeckPropertiesTest(unittest.TestCase):
     def test_count_spades(self):
         self.assertEqual(len([card for card in self.shuffled_deck.deck if card.suit == 'S']), 13)
 
-class HandEvaluatorTest(unittest.TestCase):
+class HandConstructorTest(unittest.TestCase):
 
     def setUp(self):
         ''' set up a variety of hands and community cards manually for testing
@@ -58,8 +58,8 @@ class HandEvaluatorTest(unittest.TestCase):
                 Card('J', 'S'),
                 Card('K', 'S'))
 
-        self.straight_hand_eval = HandEvaluator(self.hand_straight, self.cc_straight)
-        self.flush_hand_eval = HandEvaluator(self.hand_flush, self.cc_flush)
+        self.straight_hand_eval = HandConstructor(self.hand_straight, self.cc_straight)
+        self.flush_hand_eval = HandConstructor(self.hand_flush, self.cc_flush)
 
     def test_is_flush(self):
         pass

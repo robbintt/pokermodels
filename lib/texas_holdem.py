@@ -151,8 +151,30 @@ class Game(object):
         self.community_cards.card5 = self.deck.deal()
 
 
-class HandEvaluator(object):
-    ''' Build and evaluate a hand, and score it
+class HandConstructor(object):
+    ''' Construct the best hand
+
+    If there's a flush, flag it as available so you can skip some lower evaluation
+    ==========================================
+        - check just the flush cards for a straight to improve the hand
+        - if you find one, check if it's a royal flush
+
+    If it's '4 of a kind', then stop evaluating, no better options fit...
+    ==========================================
+
+    Flow down from full house to high card...
+    ==========================================
+    If three of a kind
+        - check remainder for a pair - that's a full house
+        - else get 2 kickers
+    if two of a kind, 
+        - check remainder for a pair - that's two pair
+            - get the kicker to fill the hand
+        - else get 3 kickers
+    finally select high card
+        - select 4 kickers to construct the hand
+
+    ===
 
     There is a degenerate nomenclature for hands
 
@@ -207,6 +229,8 @@ class HandEvaluator(object):
         pass
 
     def eval_royalflush(self):
+        '''
+        '''
         pass
 
     def eval_straightflush(self):
