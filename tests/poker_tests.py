@@ -69,15 +69,16 @@ class PokerGameTest(unittest.TestCase):
         ''' set up a variety of hands and community cards manually for testing
         '''
         deck = Deck(SUITS, RANKS, shuffled=True)
-
         players = list()
         self.player_number = 2
         for i in range(self.player_number):
             players.append(Player(name=str(i), chips=1500))
+
         self.player_1 = players[0]
         self.player_2 = players[1]  # initially the button, aka players[-1]
 
         self.game = Game(deck, players)
+        self.cards_left_in_deck = len(self.game.deck.deck)
 
     def test_select_button(self):
         self.assertIsNone(self.game.button, None)
@@ -91,11 +92,11 @@ class PokerGameTest(unittest.TestCase):
 
     def test_deal_hands(self):
         self.game.deal_hands()
-        self.cards_left_in_deck = 52 - 2 * len(self.game.players)
+        self.cards_left_in_deck -= 2 * len(self.game.players)
         self.assertEqual(len(self.game.deck.deck), self.cards_left_in_deck)
 
+    def test_burn_card(self):
+        self.game.burn_card()
+        self.cards_left_in_deck -= 1
+        self.assertEqual(len(self.game.deck.deck), self.cards_left_in_deck)
 
-    '''
-    def count_deal(self):
-        game.deal
-    '''
