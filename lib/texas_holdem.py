@@ -7,6 +7,10 @@ import collections
 from lib.poker_const import *
 
 class Hand(object):
+    ''' deprecated
+
+    does this have a place on player or no?
+    '''
 
     def __init__(self, card1=None, card2=None):
         self.card1 = card1
@@ -47,13 +51,6 @@ class CommunityCards(object):
         self.card3 = card3
         self.card4 = card4
         self.card5 = card5
-
-    @property
-    def suitedness(self):
-        if self.card1.suit == self.card2.suit:
-            return True
-        else: 
-            return False
 
     @property
     def cards(self):
@@ -116,6 +113,7 @@ class Game(object):
         self.deck = deck
         self.muck = list()
         self.players = collections.deque(players)
+        self.community_cards = CommunityCards()
         self.button = None
 
     def select_button(self):
@@ -147,6 +145,20 @@ class Game(object):
             player.cards.append(self.deck.deal())
         for player in self.players:
             player.cards.append(self.deck.deal())
+
+    def deal_flop(self):
+        self.burn_card()
+        self.community_cards.card1 = self.deck.deal()
+        self.community_cards.card2 = self.deck.deal()
+        self.community_cards.card3 = self.deck.deal()
+
+    def deal_turn(self):
+        self.burn_card()
+        self.community_cards.card4 = self.deck.deal()
+
+    def deal_river(self):
+        self.burn_card()
+        self.community_cards.card5 = self.deck.deal()
 
 
 class HandEvaluator(object):

@@ -100,3 +100,32 @@ class PokerGameTest(unittest.TestCase):
         self.cards_left_in_deck -= 1
         self.assertEqual(len(self.game.deck.deck), self.cards_left_in_deck)
 
+    def test_deal_flop(self):
+        self.game.deal_flop()
+        self.cards_left_in_deck -= 4
+        self.assertEqual(len(self.game.deck.deck), self.cards_left_in_deck)
+        self.assertIs(self.game.community_cards.card1, self.game.community_cards.cards[0])
+        self.assertIs(self.game.community_cards.card2, self.game.community_cards.cards[1])
+        self.assertIs(self.game.community_cards.card3, self.game.community_cards.cards[2])
+        self.assertIsNone(self.game.community_cards.card4)
+        self.assertIsNone(self.game.community_cards.card5)
+
+    def test_deal_turn(self):
+        self.game.deal_turn()
+        self.cards_left_in_deck -= 2
+        self.assertEqual(len(self.game.deck.deck), self.cards_left_in_deck)
+        self.assertIs(self.game.community_cards.card1, self.game.community_cards.cards[0])
+        self.assertIs(self.game.community_cards.card2, self.game.community_cards.cards[1])
+        self.assertIs(self.game.community_cards.card3, self.game.community_cards.cards[2])
+        self.assertIs(self.game.community_cards.card4, self.game.community_cards.cards[3])
+        self.assertIsNone(self.game.community_cards.card5)
+
+    def test_deal_river(self):
+        self.game.deal_river()
+        self.cards_left_in_deck -= 2
+        self.assertEqual(len(self.game.deck.deck), self.cards_left_in_deck)
+        self.assertIs(self.game.community_cards.card1, self.game.community_cards.cards[0])
+        self.assertIs(self.game.community_cards.card2, self.game.community_cards.cards[1])
+        self.assertIs(self.game.community_cards.card3, self.game.community_cards.cards[2])
+        self.assertIs(self.game.community_cards.card4, self.game.community_cards.cards[3])
+        self.assertIs(self.game.community_cards.card5, self.game.community_cards.cards[4])
