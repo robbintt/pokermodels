@@ -210,20 +210,28 @@ class HandConstructor(object):
     write a little scoring matrix from low to high that can be enumerated
     identify each score that can be made from the five cards and keep the highest
     or test each from the top and keep the first one you get
+
+    FUTURE:
+    - evaluate all possible hands then use a comparison tool to select the best
+    - evaluate potential hands from an incomplete community_cards
     '''
     def __init__(self, hand, community_cards):
         self.hand = hand
         self.community_cards = community_cards
         self.cards = self.hand.cards + self.community_cards.cards
 
-        self.royal_flushes = list()
-        self.straight_flushes = list()
-
         self.best_hand = list()
+
+        self.rank_tally = list()
+        self.suit_tally = list()
 
     def order_ranks(self):
         self.cards.sort(key=lambda card: RANK_ORDER[card.rank]) 
         logging.debug('by rank: {}'.format(str(self)))
+
+    def order_suits(self):
+        self.cards.sort(key=lambda card: card.suit) 
+        #logging.debug(str(self))
 
     def tally_ranks(self):
         ''' reset rank_tally and perform tally
@@ -234,14 +242,32 @@ class HandConstructor(object):
         #logging.debug(str(self))
         #logging.debug('rank tally: {}'.format(self.rank_tally))
 
-    def order_suits(self):
-        self.cards.sort(key=lambda card: card.suit) 
-        #logging.debug(str(self))
+    def tally_suits(self):
+        ''' reset suit_tally and perform tally
+        '''
+        self.suit_tally = {suit: 0 for suit in SUIT}
+        for card in self.cards:
+            self.suit_tally[card.suit] += 1
+        logging.debug(str(self))
+        logging.debug('suit tally: {}'.format(self.suit_tally))
+
 
     def eval_flush(self):
         '''
         '''
-        pass
+        self.tally_suits()
+        for suit, tally in self.suit_tally:
+            if tally >= 5:
+                flush_cards = [card for card in self.cards if card.suit == suit]
+            if len(flush_cards) > 5:
+                flush_cards.sort(key=lambda card: RANK_ORDER[card.rank]) 
+                flush_cards.reverse()  # higher ranks go first
+                flush cards = flush_cards[:5]  # use the top 5
+                # evaluate if it's a straight, if so return as straight flush...
+                # if not, return it as flush
+                # this will miss if there's a lower straightflush and a higher non-straight flush...
+                # FIX ME: what if we evaluate the long flush for straights?
+                # this affects my control flow, as the eval_straight is not made to be reused currently
 
     def eval_straightflush(self):
         '''
@@ -252,6 +278,8 @@ class HandConstructor(object):
 
     def eval_straight(self):
         ''' Use combinatorics to evaluate if there's a straight
+
+        This is used for general evaluation and evaluation of a flush for straightflush
 
         Ideally find all straights, then evaluate them for flushness and return the best one.
         '''
