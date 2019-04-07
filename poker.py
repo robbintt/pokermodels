@@ -15,7 +15,7 @@ logging.basicConfig(filename='logs/debug.log',level=logging.DEBUG)
 if __name__ == '__main__':
     '''
     '''
-    from tests.poker_tests import HandConstructorTest, StandardDeckPropertiesTest, PokerGameTest
+    from tests.poker_tests import HandConstructorTest, StandardDeckPropertiesTest, PokerGameTest, KindHandConstructorTest
 
     unittest.main(verbosity=2)
     

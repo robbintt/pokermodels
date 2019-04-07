@@ -223,7 +223,7 @@ class HandConstructor(object):
 
     def order_ranks(self):
         self.cards.sort(key=lambda card: RANK_ORDER[card.rank]) 
-        #logging.debug(str(self))
+        logging.debug('by rank: {}'.format(str(self)))
 
     def tally_ranks(self):
         ''' reset rank_tally and perform tally
@@ -282,6 +282,81 @@ class HandConstructor(object):
         '''
         pass
 
+    def get_high_card(self, remaining_cards):
+        remaining_cards.sort(key=lambda card: RANK_ORDER[card.rank])
+        logging.debug('remaining by rank: {}'.format([str(card) for card in remaining_cards]))
+        return remaining_cards[0], remaining_cards[1:]
+
+    def eval_kinds(self):
+        ''' evaluate kinds including full house, flow through complete hand construction
+
+        all non-kind hands are complete hands and do not need 'rounding off' with kickers
+        although the high card selection process for a suited group forming a flush
+        or a long straight are analogous...
+        '''
+        self.tally_ranks()
+        rank_tally_list = [(tally, rank) for rank, tally in self.rank_tally.iteritems()]
+        logging.debug(rank_tally_list)
+        remaining_cards = list()
+        # sort by rank and then by instance, so 3 aces will always occur after 3 kings
+        # this will allow a full house to be properly ordered as AAAKK or "aces full of kings"
+        rank_tally_list.sort(key=lambda vals: (vals[0], RANK_ORDER[vals[1]]))
+        rank_tally_list.reverse() # traverse higher kinds first
+        logging.debug(rank_tally_list)
+
+        for tally, rank in rank_tally_list:
+            if tally == 4:
+                for card in self.cards:
+                    if card.rank == rank and len(best_hand) < 5:
+                        self.best_hand.append(card)
+                    else:
+                        remaining_cards.append(card)
+
+                high_card, remaining_cards = self.get_high_card(remaining_cards)
+                self.best_hand.append(high_card)  # result is self.best_hand
+                return
+
+            if tally == 3:
+                # this catches a AAATTT or similar situation to ensure the tally is AAATT
+                # it will not fail in the fail case AAATTTQQ since that's 1 too many cards for holdem
+                for card in self.cards:
+                    if card.rank == rank and len(self.best_hand) < 5:
+                        self.best_hand.append(card)
+                    else:
+                        remaining_cards.append(card)
+                if len(self.best_hand) == 5:
+                    return
+
+            if tally == 2:
+                # will tally == 2 catch a AATT66K situation? The best hand is AATTK
+                # to do so it must back off after 4 cards
+                if len(self.best_hand) < 4:
+                    for card in self.cards:
+                        if card.rank == rank:
+                            self.best_hand.append(card)
+                        else:
+                            remaining_cards.append(card)
+                else:
+                    high_card, remaining_cards = self.get_high_card(remaining_cards)
+                    self.best_hand.append(high_card)  # result is self.best_hand
+                    return
+
+            if tally == 1:
+                if len(self.best_hand) < 5:
+                    # guaranteed to be the highest card left
+                    for card in self.cards:
+                        if card.rank == rank:
+                            self.best_hand.append(card)
+                            if len(self.best_hand) == 5:
+                                return
+                        else:
+                            pass # continue loop
+                # shouldn't get here with a full hand anyways
+                else:
+                    logging.debug("How did you get here?")
+                    return
+
+
     def eval_3kind(self):
         ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, pair
 
@@ -298,6 +373,8 @@ class HandConstructor(object):
         rank_tally_list.sort(key=lambda vals: (vals[0], RANK_ORDER[vals[1]]))
         logging.debug(rank_tally_list)
         return
+
+
         for tally, rank in rank_tally_list:
 
             # this won't quite work as you can have 2x 3 of a kind and need to make it into a FH

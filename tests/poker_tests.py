@@ -24,6 +24,56 @@ class StandardDeckPropertiesTest(unittest.TestCase):
     def test_count_spades(self):
         self.assertEqual(len([card for card in self.shuffled_deck.deck if card.suit == 'S']), 13)
 
+class KindHandConstructorTest(unittest.TestCase):
+    
+    def setUp(self):
+        self.maxDiff = None
+        pass
+
+    def test_kindhand_2p(self):
+        self.hand = Hand(
+                Card('5', 'S'), 
+                Card('K', 'C'))
+        self.cc = CommunityCards(
+                Card('K', 'S'), 
+                Card('5', 'H'),
+                Card('J', 'D'), 
+                Card('T', 'C'),
+                Card('8', 'S'))
+
+        self.hand_eval = HandConstructor(self.hand, self.cc)
+        self.hand_eval.eval_kinds()
+        the_best_hand = [
+                Card('5', 'S'), 
+                Card('K', 'C'),
+                Card('K', 'S'), 
+                Card('5', 'H'),
+                Card('J', 'D')]
+        self.assertItemsEqual(self.hand_eval.best_hand, the_best_hand)
+        logging.debug([str(card) for card in self.hand_eval.best_hand])
+
+    def test_kindhand_3(self):
+        self.hand = Hand(
+                Card('5', 'S'), 
+                Card('5', 'C'))
+        self.cc = CommunityCards(
+                Card('K', 'S'), 
+                Card('5', 'H'),
+                Card('J', 'D'), 
+                Card('T', 'C'),
+                Card('8', 'S'))
+
+        self.hand_eval = HandConstructor(self.hand, self.cc)
+        self.hand_eval.eval_kinds()
+        the_best_hand = [
+                Card('5', 'S'), 
+                Card('5', 'C'),
+                Card('K', 'S'), 
+                Card('5', 'H'),
+                Card('J', 'D')]
+        self.assertItemsEqual(self.hand_eval.best_hand, the_best_hand)
+        logging.debug([str(card) for card in self.hand_eval.best_hand])
+
 class HandConstructorTest(unittest.TestCase):
 
     def setUp(self):
@@ -79,7 +129,7 @@ class HandConstructorTest(unittest.TestCase):
     def test_eval_3kind(self):
         '''
         '''
-        self.flush_hand_eval.eval_3kind()
+        self.flush_hand_eval.eval_kinds()
 
     def test_is_straight(self):
         self.assertTrue(self.straight_hand_eval.eval_straight()[0])
