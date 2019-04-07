@@ -62,10 +62,24 @@ class HandConstructorTest(unittest.TestCase):
         self.flush_hand_eval = HandConstructor(self.hand_flush, self.cc_flush)
 
     def test_is_flush(self):
+        ''' no test yet
+        '''
         pass
 
     def test_order_suits(self):
+        ''' no test yet
+        '''
         self.flush_hand_eval.order_suits()
+
+    def test_tally_ranks(self):
+        ''' no test yet
+        '''
+        self.flush_hand_eval.tally_ranks()
+
+    def test_eval_3kind(self):
+        '''
+        '''
+        self.flush_hand_eval.eval_3kind()
 
     def test_is_straight(self):
         self.assertTrue(self.straight_hand_eval.eval_straight()[0])
@@ -73,6 +87,7 @@ class HandConstructorTest(unittest.TestCase):
     def test_straight_rank(self):
         ''' test report rank of a six or seven card straight correctly
         '''
+        # TODO: i may have changed the input data and screwed this up... when verified remove this comment 
         self.assertEqual(self.straight_hand_eval.eval_straight(), (True, 'A'))
 
 

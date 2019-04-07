@@ -157,9 +157,10 @@ class HandConstructor(object):
     If there's a flush, flag it as available so you can skip some lower evaluation
     ==========================================
         - check just the flush cards for a straight to improve the hand
-        - if you find one, check if it's a royal flush
+        - check if any straight flushes are royal flush (technically named differently)
 
-    If it's '4 of a kind', then stop evaluating, no better options fit...
+    If it's '4 of a kind', stop evaluating (nothing else fits)
+        - select 1 kicker
     ==========================================
 
     Flow down from full house to high card...
@@ -215,9 +216,23 @@ class HandConstructor(object):
         self.community_cards = community_cards
         self.cards = self.hand.cards + self.community_cards.cards
 
+        self.royal_flushes = list()
+        self.straight_flushes = list()
+
+        self.best_hand = list()
+
     def order_ranks(self):
         self.cards.sort(key=lambda card: RANK_ORDER[card.rank]) 
         #logging.debug(str(self))
+
+    def tally_ranks(self):
+        ''' reset rank_tally and perform tally
+        '''
+        self.rank_tally = {rank: 0 for rank in RANKS}
+        for card in self.cards:
+            self.rank_tally[card.rank] += 1
+        #logging.debug(str(self))
+        #logging.debug('rank tally: {}'.format(self.rank_tally))
 
     def order_suits(self):
         self.cards.sort(key=lambda card: card.suit) 
@@ -228,18 +243,17 @@ class HandConstructor(object):
         '''
         pass
 
-    def eval_royalflush(self):
-        '''
-        '''
-        pass
-
     def eval_straightflush(self):
-        ''' should royal flush be evaluated here?
+        '''
+
+        Includes royal flushes
         '''
         pass
 
     def eval_straight(self):
         ''' Use combinatorics to evaluate if there's a straight
+
+        Ideally find all straights, then evaluate them for flushness and return the best one.
         '''
         STRAIGHT_RANKS = ['A'] + list(RANKS)
         STRAIGHT = 5
@@ -270,8 +284,61 @@ class HandConstructor(object):
 
     def eval_3kind(self):
         ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, pair
+
+        I need to sort by highest rank as well, so i always get FH and 2-pair in proper order
+        e.g. kings over threes
+        e.g. three pair = aa, 88, 22 = aa882, best to grab the highest ranks first
+        or is this just for the special case where there are 2x three of a kind which is a FH?
+        '''
+        self.tally_ranks()
+        rank_tally_list = [(tally, rank) for rank, tally in self.rank_tally.iteritems()]
+        logging.debug(rank_tally_list)
+        # sort by rank and then by instance, so 3 aces will always occur after 3 kings
+        # this will allow a full house to be properly ordered as AAAKK or "aces full of kings"
+        rank_tally_list.sort(key=lambda vals: (vals[0], RANK_ORDER[vals[1]]))
+        logging.debug(rank_tally_list)
+        return
+        for tally, rank in rank_tally_list:
+
+            # this won't quite work as you can have 2x 3 of a kind and need to make it into a FH
+            
+            if tally == 4:
+
+                self.best_hand.append([card for card in self.cards if card.rank == rank])
+                remaining_cards = [card for card in self.cards if card.rank != rank]
+                high_card, remaining_cards = self.get_high_card(remaining_cards)
+                best_hand.append(high_card)
+
+            if tally == 3:
+                if len(best_hand) < 3:
+                    # three of a kind
+
+                    # this approach is okay but brittle for more complicated selection
+                    self.best_hand.append([card for card in self.cards if card.rank == rank])
+                    remaining_cards = [card for card in self.cards if card.rank != rank]
+
+                # 2x 3 of a kind... keep the best
+                else:
+                    pass
+
+            # search for a pair in remaining cards
+            # get a high cards from remaining cards...
+            # repeat: get a high cards from remaining cards...
+            if tally == 2 and len(best_hand) < 4:
+
+                self.best_hand.append([card for card in self.cards if card.rank == rank])
+                remaining_cards = [card for card in self.cards if card.rank != rank]
+
+        # fill the rest of the hand
+        while len(best_hand) < 5:
+            high_card, remaining_cards = self.get_high_card(remaining_cards)
+            best_hand.append(high_card)
+
+    def get_high_card(self, remaining_cards):
+        '''
         '''
         pass
+        # return high_card, remaining_cards
 
     def eval_2pair(self):
         ''' how does this match up with fullhouse, 4-kind, 3-kind, 2-pair, pair
