@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function
 import unittest
 import logging
 
-from lib.const_poker import *
+from lib.poker_const import *
 from lib.deck import Deck, Card
 from lib.texas_holdem import CommunityCards, Hand, HandEvaluator, Game, Player
 
@@ -48,11 +48,24 @@ class HandEvaluatorTest(unittest.TestCase):
                 Card('J', 'S'), 
                 Card('T', 'S'),
                 Card('9', 'S'))
+        self.hand_flush = Hand(
+                Card('T', 'S'), 
+                Card('3', 'S'))
+        self.cc_flush = CommunityCards(
+                Card('4', 'S'), 
+                Card('7', 'H'),
+                Card('9', 'S'), 
+                Card('J', 'S'),
+                Card('K', 'S'))
 
         self.straight_hand_eval = HandEvaluator(self.hand_straight, self.cc_straight)
+        self.flush_hand_eval = HandEvaluator(self.hand_flush, self.cc_flush)
 
     def test_is_flush(self):
         pass
+
+    def test_order_suits(self):
+        self.flush_hand_eval.order_suits()
 
     def test_is_straight(self):
         self.assertTrue(self.straight_hand_eval.eval_straight()[0])

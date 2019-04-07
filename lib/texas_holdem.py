@@ -6,6 +6,8 @@ import collections
 
 from lib.poker_const import *
 
+logging.basicConfig(filename='logs/debug.log',level=logging.DEBUG)
+
 class Hand(object):
     '''
     '''
@@ -152,6 +154,31 @@ class Game(object):
 class HandEvaluator(object):
     ''' Build and evaluate a hand, and score it
 
+    There is a degenerate nomenclature for hands
+
+    Royal Flush
+    Straight Flush, 
+        - King High
+    4 of a kind Aces
+        - King Kicker
+    Full House, Tens over Twos, Tens over Threes, Aces over Tens
+        - compare three of a kind
+        - compare two of a kind
+    Flush
+        - compare down the flush
+    Straight, 5 High
+        - compare down the straight
+    Three of a Kind, Aces
+        - two kickers!!
+    Two pair, Aces over threes, kicker
+        - high pair
+        - then low pair
+        - then kicker
+    Pair
+        - three kickers
+    High Card
+        - Four kickers
+
     community_cards = a container of 5 cards
     hand = a container of 2 cards
 
@@ -166,8 +193,12 @@ class HandEvaluator(object):
         self.community_cards = community_cards
         self.cards = self.hand.cards + self.community_cards.cards
 
-    def order_cards(self):
+    def order_ranks(self):
         self.cards.sort(key=lambda card: RANK_ORDER[card.rank]) 
+
+    def order_suits(self):
+        self.cards.sort(key=lambda card: card.suit) 
+        logging.debug(' '.join([str(card) for card in self.cards]))
 
     def eval_flush(self):
         '''
@@ -190,7 +221,7 @@ class HandEvaluator(object):
         has_straight = (False, None)
         possible_straights = [STRAIGHT_RANKS[a:a+STRAIGHT] for a in range(len(STRAIGHT_RANKS)-STRAIGHT+1)]
 
-        self.order_cards()
+        self.order_ranks()
         hand_ranks = list(set([card.rank for card in self.cards]))
         hand_ranks.sort(key=lambda card: RANK_ORDER[card])
         possible_hands = [hand_ranks[a:a+STRAIGHT] for a in range(len(hand_ranks)-STRAIGHT+1)]
