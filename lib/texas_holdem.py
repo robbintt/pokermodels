@@ -84,6 +84,22 @@ class Player(object):
     def __str__(self):
         return "Player {}: {} chips.".format(self.name, self.chips)
 
+class GameController(object):
+    ''' Game controller manages the table, players, and chips
+
+    This multi-Game module isn't on the roadmap at the moment.
+    
+    I am most interested in using the Game abstraction for stats.
+
+    If I wanted to run strategy simulations, I would use this game controller.
+
+    The controller could be used to play a table for awhile, replay different 
+    game scenarios at key branch points, etc.
+
+    The controller could also be the gateway for an API for multiplayer games.
+    '''
+    pass
+
 
 class Game(object):
     ''' Play a game of poker with no bets
@@ -98,24 +114,39 @@ class Game(object):
     '''
     def __init__(self, deck, players):
         self.deck = deck
+        self.muck = list()
         self.players = collections.deque(players)
         self.button = None
 
     def select_button(self):
-        self.button = self.players[0]
+        self.button = self.players[-1]
         logging.debug("Player {} is button.".format(str(self.button.name)))
 
     def update_button(self):
         self.players.rotate(-1)  # rotate(-1) will rotate player 1 to last position
-        self.button = self.players[0]
+        self.button = self.players[-1]
         logging.debug("Player {} is button.".format(str(self.button.name)))
 
-    def deal_hands(self):
-        for player in players:
-            player.cards.append(self.deck.deal())
-        for player in players:
-            player.cards.append(self.deck.deal())
+    def burn_card(self):
+        ''' Add a card to the muck
 
+        This is done before the flop, turn, river for three total burns.
+        '''
+        self.muck.append(self.deck.deal())
+
+    def deal_hands(self):
+        ''' Deal cards to each player in two rounds.
+
+        dealing order is sb->bb->...->button
+        
+        - The small blind is self.players[0]
+        - The big blind is self.players[1]
+        - The button is self.players[-1]
+        '''
+        for player in self.players:
+            player.cards.append(self.deck.deal())
+        for player in self.players:
+            player.cards.append(self.deck.deal())
 
 
 class HandEvaluator(object):

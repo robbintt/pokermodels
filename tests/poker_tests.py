@@ -71,11 +71,11 @@ class PokerGameTest(unittest.TestCase):
         deck = Deck(SUITS, RANKS, shuffled=True)
 
         players = list()
-        player_number = 2
-        for i in range(player_number):
+        self.player_number = 2
+        for i in range(self.player_number):
             players.append(Player(name=str(i), chips=1500))
         self.player_1 = players[0]
-        self.player_2 = players[1]
+        self.player_2 = players[1]  # initially the button, aka players[-1]
 
         self.game = Game(deck, players)
 
@@ -83,11 +83,16 @@ class PokerGameTest(unittest.TestCase):
         self.assertIsNone(self.game.button, None)
         self.game.select_button()
         #self.assertIsInstance(self.game.button, Player)
-        self.assertEqual(self.game.button, self.player_1)
+        self.assertEqual(self.game.button, self.player_2)
 
     def test_update_button(self):
         self.game.update_button()
-        self.assertEqual(self.game.button, self.player_2)
+        self.assertEqual(self.game.button, self.player_1)
+
+    def test_deal_hands(self):
+        self.game.deal_hands()
+        self.cards_left_in_deck = 52 - 2 * len(self.game.players)
+        self.assertEqual(len(self.game.deck.deck), self.cards_left_in_deck)
 
 
     '''
