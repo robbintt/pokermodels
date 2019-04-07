@@ -7,14 +7,20 @@ import collections
 from lib.poker_const import *
 
 class Hand(object):
-    ''' deprecated
-
-    does this have a place on player or no?
     '''
-
+    '''
     def __init__(self, card1=None, card2=None):
         self.card1 = card1
         self.card2 = card2
+        
+    @property
+    def cards(self):
+        ''' return a list of cards for evaluation... don't destroy the cards!
+        '''
+        return [self.card1, self.card2]
+
+    def __str__(self):
+        return " ".join([str(card) for card in self.cards])
 
     @property
     def suited(self):
@@ -29,18 +35,6 @@ class Hand(object):
             return 's'
         else: 
             return 'o'
-
-    @property
-    def cards(self):
-        ''' return a list of cards for evaluation... don't destroy the cards!
-        '''
-        return [self.card1, self.card2]
-
-    def __str__(self):
-        return("{}{}-{}{} : {}{}{}".format(
-            self.card1.rank, self.card1.suit, 
-            self.card2.rank, self.card2.suit,
-            self.card1.rank, self.card2.rank, self.suited_str))
 
 
 class CommunityCards(object):
@@ -59,24 +53,18 @@ class CommunityCards(object):
         return [self.card1, self.card2, self.card3, self.card4, self.card5]
 
     def __str__(self):
-        card_string_template = "{}{} " * 5
-        return(card_string_template.format(
-            self.card1.rank, self.card1.suit, 
-            self.card2.rank, self.card2.suit,
-            self.card3.rank, self.card3.suit,
-            self.card4.rank, self.card4.suit,
-            self.card5.rank, self.card5.suit))
+        return " ".join([str(card) for card in self.cards])
 
 class Player(object):
-    ''' Stub for naming players, for now
     '''
-    def __init__(self, name=None, chips=0, cards=None):
+    '''
+    def __init__(self, name=None, chips=0, hand=None):
         self.name = name
         self.chips = chips
-        if cards:
-            self.cards = cards
+        if hand:
+            self.hand = hand 
         else:
-            self.cards = list()
+            self.hand = Hand()
 
     def __str__(self):
         return "Player {}: {} chips.".format(self.name, self.chips)
@@ -142,9 +130,9 @@ class Game(object):
         - The button is self.players[-1]
         '''
         for player in self.players:
-            player.cards.append(self.deck.deal())
+            player.hand.card1 = self.deck.deal()
         for player in self.players:
-            player.cards.append(self.deck.deal())
+            player.hand.card2 = self.deck.deal()
 
     def deal_flop(self):
         self.burn_card()
