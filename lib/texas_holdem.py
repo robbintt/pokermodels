@@ -195,10 +195,11 @@ class HandEvaluator(object):
 
     def order_ranks(self):
         self.cards.sort(key=lambda card: RANK_ORDER[card.rank]) 
+        #logging.debug(str(self))
 
     def order_suits(self):
         self.cards.sort(key=lambda card: card.suit) 
-        logging.debug(' '.join([str(card) for card in self.cards]))
+        #logging.debug(str(self))
 
     def eval_flush(self):
         '''
