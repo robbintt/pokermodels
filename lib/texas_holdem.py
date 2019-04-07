@@ -284,6 +284,7 @@ class HandConstructor(object):
 
     def get_high_card(self, remaining_cards):
         remaining_cards.sort(key=lambda card: RANK_ORDER[card.rank])
+        remaining_cards.reverse()
         logging.debug('remaining by rank: {}'.format([str(card) for card in remaining_cards]))
         return remaining_cards[0], remaining_cards[1:]
 
