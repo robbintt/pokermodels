@@ -54,6 +54,30 @@ class KindHandConstructorTest(unittest.TestCase):
         self.assertItemsEqual(self.hand_eval.best_hand, the_best_hand)
 
 
+    def test_kindhand_highcard(self):
+        self.hand = Hand(
+                Card('5', 'S'), 
+                Card('6', 'C'))
+        self.cc = CommunityCards(
+                Card('K', 'S'), 
+                Card('9', 'H'),
+                Card('J', 'D'), 
+                Card('T', 'D'),
+                Card('2', 'S'))
+
+        self.hand_eval = HandConstructor(self.hand, self.cc)
+        self.hand_eval.eval_kinds()
+        the_best_hand = [
+                Card('K', 'S'), 
+                Card('J', 'D'),
+                Card('T', 'D'), 
+                Card('9', 'H'),
+                Card('6', 'C')]
+
+        logging.debug([str(card) for card in self.hand_eval.best_hand])
+        self.assertItemsEqual(self.hand_eval.best_hand, the_best_hand)
+
+
     def test_kindhand_2p(self):
         self.hand = Hand(
                 Card('5', 'S'), 
