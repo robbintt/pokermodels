@@ -222,6 +222,7 @@ class HandConstructor(object):
         self.cards = self.hand.cards + self.community_cards.cards
 
         self.best_hand = list()
+        self.best_hand_name = None #  see WINNING_HANDS
 
         self.rank_tally = list()
         self.suit_tally = list()
@@ -252,9 +253,31 @@ class HandConstructor(object):
         logging.debug(str(self))
         logging.debug('suit tally: {}'.format(self.suit_tally))
 
+    def eval_hand(self):
+        ''' Run each evaluation in order
+
+        1. eval_flush
+            a. run eval_straight if there are 5-7 cards in 1 suit
+        2. eval_straight
+        3. eval_kinds
+
+        After each eval is run, if best_hand is populated then no further evals are run.
+        This is a cascading system and I'm not a huge fan.
+        I would like to replace this with a DSL for evaluation using a parser.
+        '''
+        self.eval_flush()  # does eval for straightflush
+        if not self.best_hand:
+            self.eval_straight()
+        if not self.best_hand:
+            self.eval_kinds()
+        if not self.best_hand:
+            logging.debug("How did you get here?")
+            raise
 
     def eval_flush(self):
-        '''
+        ''' Evaluate if there's a flush.
+
+        This method also evaluates for straight flush inside the superset of flush cards (5 to 7 suited cards)
         '''
         self.tally_suits()
         for suit, tally in self.suit_tally:
@@ -263,43 +286,55 @@ class HandConstructor(object):
             if len(flush_cards) > 5:
                 flush_cards.sort(key=lambda card: RANK_ORDER[card.rank]) 
                 flush_cards.reverse()  # higher ranks go first
-                flush cards = flush_cards[:5]  # use the top 5
+
+                # this is tricky, because eval_straight goes to the parent object by default
+                # can either give those as default kwargs in eval_straight and
+                # could have eval_straight return its result and do assignment in another controller...
+                # what will the overall controller look like?
+                if eval_straight(flush_cards):
+                    # TODO this could be cleaner... i don't think i will be assigning these here? not sure...
+                    # ideally the hand names are generated from the best hands with a parser...
+                    self.best_hand_name = 'StraightFlush'  # needs corrected from eval_straight
+                else:
+                    self.best_hand_name = 'Flush'
+                    self.best_hand = flush_cards[:5]  # use the top 5
                 # evaluate if it's a straight, if so return as straight flush...
                 # if not, return it as flush
                 # this will miss if there's a lower straightflush and a higher non-straight flush...
                 # FIX ME: what if we evaluate the long flush for straights?
                 # this affects my control flow, as the eval_straight is not made to be reused currently
 
-    def eval_straightflush(self):
-        '''
-
-        Includes royal flushes
-        '''
-        pass
-
-    def eval_straight(self):
+    def eval_straight(self, cards=None):
         ''' Use combinatorics to evaluate if there's a straight
 
-        This is used for general evaluation and evaluation of a flush for straightflush
+        This could be used on the full hand or just the flush containing subset...
+        Then straightflush is just a natural outcome of eval_straight on the result of eval_flush
 
-        Ideally find all straights, then evaluate them for flushness and return the best one.
+        Sets the best_hand to the highest straight
         '''
+        if not cards:
+            cards = self.cards
         STRAIGHT_RANKS = ['A'] + list(RANKS)
         STRAIGHT = 5
-        has_straight = (False, None)
+        has_straight = False
         possible_straights = [STRAIGHT_RANKS[a:a+STRAIGHT] for a in range(len(STRAIGHT_RANKS)-STRAIGHT+1)]
 
         self.order_ranks()
-        hand_ranks = list(set([card.rank for card in self.cards]))
+        hand_ranks = list(set([card.rank for card in cards]))
         hand_ranks.sort(key=lambda card: RANK_ORDER[card])
         possible_hands = [hand_ranks[a:a+STRAIGHT] for a in range(len(hand_ranks)-STRAIGHT+1)]
 
+        # TODO we just need to compare this once, but this checks every hand in possible_hands against 
+        #     every straight in possible straights
+        # but it doesn't break the logic as long as the highest hand is tested last in possible_hands
         for s in possible_straights:
+            # keeps the last tested self.best_hand, relies on order of possible_hands
             for h in possible_hands:
                 if s == h:
-                    has_straight = (True, s[-1])
-
-        return has_straight
+                    has_straight = True
+                    self.best_hand_name = 'Straight'
+                    self.best_hand = h
+        return has_straight  # logic used by flush_eval()
 
     def get_high_card(self, remaining_cards):
         remaining_cards.sort(key=lambda card: RANK_ORDER[card.rank])
@@ -331,6 +366,7 @@ class HandConstructor(object):
                         self.best_hand.append(card)
                     else:
                         remaining_cards.append(card)
+                    self.best_hand_name = 'FourofaKind'
 
                 logging.debug(remaining_cards)
                 high_card, remaining_cards = self.get_high_card(remaining_cards)
@@ -340,28 +376,43 @@ class HandConstructor(object):
             if tally == 3:
                 # this catches a AAATTT or similar situation to ensure the tally is AAATT
                 # it will not fail in the fail case AAATTTQQ since that's 1 too many cards for holdem
+                self.best_hand_name = 'ThreeofaKind'  # TODO hacky... FH overrides on best_hand completion
                 for card in self.cards:
                     if card.rank == rank and len(self.best_hand) < 5:
                         self.best_hand.append(card)
+                        if len(self.best_hand) == 5:
+                            self.best_hand_name = 'FullHouse' # TODO this is pretty ugly detection
                     else:
                         remaining_cards.append(card)
                 if len(self.best_hand) == 5:
+                    # i guess you can get here if you've got AAAKTTT
                     return
 
             if tally == 2:
                 # will tally == 2 catch a AATT66K situation? The best hand is AATTK
                 # to do so it must back off after 4 cards
                 if len(self.best_hand) < 4:
+                    self.best_hand_name = 'Pair' # TODO this works since FH would be 5 cards
                     for card in self.cards:
                         if card.rank == rank:
                             self.best_hand.append(card)
+                            if len(self.best_hand) == 4:
+                                self.best_hand_name = 'TwoPair' # TODO this works since FH would be 5 cards
+                            elif len(self.best_hand) == 5:
+                                self.best_hand_name = 'FullHouse' # TODO this works since FH would be 5 cards
                         else:
                             remaining_cards.append(card)
-                else:
+                # kicker is part of a third, smaller pair
+                elif len(self.best_hand) == 4:
+                    # don't change self.best_hand_name here, it's already been assigned
                     high_card, remaining_cards = self.get_high_card(remaining_cards)
                     self.best_hand.append(high_card)  # result is self.best_hand
                     return
 
+            # this shouldn't be necessary, all higher hands should have a return above
+            # in general this style of flowing exits is trash, but it's quick too
+            if not self.best_hand_name:
+                self.best_hand_name = 'HighCard'  # TODO only assign high card if its empty
             if tally == 1:
                 if len(self.best_hand) < 5:
                     # guaranteed to be the highest card left
@@ -375,14 +426,17 @@ class HandConstructor(object):
                 # shouldn't get here with a full hand anyways
                 else:
                     logging.debug("How did you get here?")
-                    return
+                    raise
+                    return # raise should not be handled anyways
 
     def __str__(self):
         return " ".join([str(card) for card in self.cards])
 
 
 def HandCompare(self):
-    ''' Given two equal hands, determine who wins
+    ''' Given a list of equal hands, determine who wins
+
+    Will this re-evaluate each player's best_hand or will it take the best_hand_name and kickers?
 
     We need to differentiate between private cards here which is kind of funky in the context of hand construction
 

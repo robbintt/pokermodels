@@ -5,16 +5,16 @@ SUITS = ('S', 'C', 'H', 'D')
 RANKS = ('2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A')
 
 WINNING_HANDS = (
-    'high_card',
-    'pair',
-    '2_pair',
-    '3_kind',
-    'straight',
-    'flush',
-    'full_house',
-    '4_kind',
-    'straight_flush',
-    'royal_flush'
+    'HighCard',
+    'Pair',
+    'TwoPair',
+    'ThreeofaKind',
+    'Straight',
+    'Flush',
+    'FullHouse',
+    'FourofaKind',
+    'StraightFlush',
+    'RoyalFlush'
 )
 
 

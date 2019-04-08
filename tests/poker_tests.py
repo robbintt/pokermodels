@@ -180,13 +180,13 @@ class HandConstructorTest(unittest.TestCase):
         self.flush_hand_eval.eval_kinds()
 
     def test_is_straight(self):
-        self.assertTrue(self.straight_hand_eval.eval_straight()[0])
+        self.assertTrue(self.straight_hand_eval.eval_straight())
 
     def test_straight_rank(self):
         ''' test report rank of a six or seven card straight correctly
         '''
         # TODO: i may have changed the input data and screwed this up... when verified remove this comment 
-        self.assertEqual(self.straight_hand_eval.eval_straight(), (True, 'A'))
+        self.assertEqual(self.straight_hand_eval.eval_straight(), True)
 
 
 class PokerGameTest(unittest.TestCase):
